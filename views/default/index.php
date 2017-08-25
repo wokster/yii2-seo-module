@@ -30,7 +30,6 @@ $this->params['breadcrumbs'][] = $this->title;
             ['attribute'=>'item_id','value'=>'modulIdName'],
             'seo_title',
             'seo_keywords',
-            'seo_description',
 
                         ['class' => 'yii\grid\ActionColumn'],
                     ],
