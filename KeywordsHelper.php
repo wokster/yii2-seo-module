@@ -9,6 +9,9 @@
 namespace wokster\seomodule;
 
 
+use yii\base\ErrorException;
+use yii\helpers\HtmlPurifier;
+
 class KeywordsHelper
 {
   protected $text;
@@ -18,49 +21,19 @@ class KeywordsHelper
 
   function explode_str_on_words()
   {
-    $search = array ("'ё'",
-        "'<script[^>]*?>.*?</script>'si",  // Вырезается javascript
-        "'<[/!]*?[^<>]*?>'si",           // Вырезаются html-тэги
-        "'([rn])[s]+'",                 // Вырезается пустое пространство
-        "'&(quot|#34);'i",                 // Замещаются html-элементы
-        "'&(amp|#38);'i",
-        "'&(lt|#60);'i",
-        "'&(gt|#62);'i",
-        "'&(nbsp|#160);'i",
-        "'&(iexcl|#161);'i",
-        "'&(cent|#162);'i",
-        "'&(pound|#163);'i",
-        "'&(copy|#169);'i",
-        "'&#(d+);'e");
-    $replace = array ("е",
-        " ",
-        " ",
-        "1 ",
-        " ",
-                      " ",
-                      " ",
-                      " ",
-                      " ",
-                      chr(161),
-                      chr(162),
-                      chr(163),
-                      chr(169),
-                      "chr(1)");
-    $text = preg_replace ($search, $replace, $this->text);
+    $text = HtmlPurifier::process($this->text);
+    $text = trim($text);
     //Список стоп символом и слов
     $del_symbols = array(",", ".", ";", ":", "", "#", "$", "%", "^",
-                         "!", "@", "`", "~", "*", "-", "=", "+", "",
-                         "|", "/", ">", "<", "(", ")", "&", "?", "?", "t",
-                         "r", "n", "{","}","[","]", "'", "“", "”", "•",
-                         "как", "для", "для", "что", "или", "это", "этих",
-                         "всех", "вас", "они", "оно", "еще", "когда",
-                         "где", "эта", "лишь", "уже", "вам", "нет",
-                         "если", "надо", "все", "так", "его", "чем",
-                         "при", "даже", "мне", "есть", "раз", "два",
-                         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-                         );
- 
-    $text = str_ireplace($del_symbols, array(" "), $text);
+"!", "@", "`", "~", "*", "-", "=", "+", "",
+"|", "/", ">", "<", "(", ")", "&", "?", "?", "t",
+"r", "n", "{","}","[","]", "'", "“", "”", "•",
+    );
+    $del_words = require(__DIR__ . '/stop_words.php');
+    array_walk($del_words,function (&$item,$k){
+      $item = ' '.$item.' ';
+    });
+    $text = str_ireplace(array_merge($del_symbols,$del_words), " ", $text);
     $text = preg_replace("( +)", " ", $text);
     $this->origin_arr = explode(" ", trim($text));
     return $this->origin_arr;
