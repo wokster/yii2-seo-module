@@ -35,7 +35,6 @@ class SeoFormWidget extends BaseWidget
    */
   public function run()
   {
-    SeoFormWidgetAssets::register($this->getView());
     $addon = '';
     if(!$this->model->isNewRecord)
       $addon = Html::a('авто','#',['class'=>'input-group-addon seo-add-default']);
